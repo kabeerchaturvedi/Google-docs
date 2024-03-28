@@ -1,9 +1,30 @@
-import React from 'react'
+import React, { useCallback } from "react";
+import "quill/dist/quill.snow.css";
+import Quill from "quill";
+
+const TOOLBAR_OPTIONS = [
+  [{ header: [1, 2, 3, 4, 5, 6, false] }],
+  [{ font: [] }],
+  [{ list: "ordered" }, { list: "bullet" }],
+  ["bold", "italic", "underline"],
+  [{ color: [] }, { background: [] }],
+  [{ script: "sub" }, { script: "super" }],
+  [{ align: [] }],
+  ["image", "blockquote", "code-block"],
+  ["clean"],
+];
 
 const TextEditor = () => {
-  return (
-    <div>TextEditor</div>
-  )
-}
+  const wrapperRef = useCallback((wrapper) => {
+    if (wrapper === null) return;
 
-export default TextEditor
+    //to clear out the page on refresh
+    wrapperRef.innerHTML = "";
+    const editor = document.createElement("div");
+    wrapper.append(editor);
+    new Quill(editor, { theme: "snow" });
+  }, []);
+  return <div className="container" ref={wrapperRef}></div>;
+};
+
+export default TextEditor;
