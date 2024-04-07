@@ -4,6 +4,7 @@ import Quill from "quill";
 import { io } from "socket.io-client";
 import { useParams } from "react-router-dom";
 
+const SAVE_INTERNAL_MS = 2000;
 const TOOLBAR_OPTIONS = [
   [{ header: [1, 2, 3, 4, 5, 6, false] }],
   [{ font: [] }],
@@ -39,6 +40,20 @@ const TextEditor = () => {
     });
     socket.emit("get-document", document);
   }, [socket, quill, documentId]);
+
+  // UseEffect for saving document
+
+  useEffect(() => {
+    if (socket == null || quill == null) return;
+
+    const interval = setInterval(() => {
+      socket.emit("save-document", quill.getContents());
+    }, SAVE_INTERNAL_MS);
+
+    return () => {
+      clearInterval(interval);
+    };
+  }, [socket, quill]);
 
   //useEffect for checking and seeing the changes(delta)
   useEffect(() => {
@@ -76,7 +91,7 @@ const TextEditor = () => {
     wrapper.append(editor);
     const q = new Quill(editor, { theme: "snow", modules: { toolbar: TOOLBAR_OPTIONS } });
     q.enable(false);
-    q.setText('...Loading')
+    q.setText("...Loading");
     setQuill(q);
   }, []);
 
